@@ -222,6 +222,24 @@ predict_model.ranger <- function(x, newdata, type, ...) {
   )
 }
 
+#' @export
+predict_model.randomForest <- function(x, newdata, type, ...) {
+  
+  # Compute the predictions
+  if (type == "raw"){
+    res <- predict(x, newdata = newdata, type = "response", ...)
+  } else {
+    res <- predict(x, newdata = newdata, type, ...)
+  }
+  
+  # Return the appropriate set of predictions
+  switch(
+    type,
+    raw = data.frame(Response = res, stringsAsFactors = FALSE),
+    prob = as.data.frame(res)
+  )
+}
+
 #' @rdname model_support
 #' @export
 model_type <- function(x, ...) {
