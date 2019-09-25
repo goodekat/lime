@@ -147,12 +147,13 @@ explain.data.frame <- function(x, explainer, labels = NULL, n_labels = NULL,
     res$model_type <- m_type
     res$perms_raw <- list(case_perm[i, ])
     res$perms_numerified <- list(perms)
+    res$perm_pred <- list(case_res[i, ])
     res$weights <- list(sim)
     res
   })
   res <- do.call(rbind, res)
   res <- res[, c('model_type', 'case', 'label', 'label_prob', 'model_r2', 'model_intercept', 'model_prediction', 'feature', 'feature_value', 'feature_weight', 'feature_desc', 'data', 'prediction', 
-                 'perms_raw', 'perms_numerified', 'weights')]
+                 'perms_raw', 'perms_numerified', 'perm_pred', 'weights')]
   if (m_type == 'regression') {
     res$label <- NULL
     res$label_prob <- NULL
