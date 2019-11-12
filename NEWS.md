@@ -1,4 +1,6 @@
-# lime (development version)
+# lime 0.5.1
+
+* Fixed namespace import from glmnet following changes there
 
 # lime 0.5.0
 

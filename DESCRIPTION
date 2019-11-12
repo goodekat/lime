@@ -1,8 +1,7 @@
 Package: lime
 Type: Package
 Title: Local Interpretable Model-Agnostic Explanations
-Version: 0.5.0.9000
-Date: 2019-06-13
+Version: 0.5.1
 Authors@R: 
     c(person(given = "Thomas Lin",
              family = "Pedersen",
@@ -23,7 +22,7 @@ Description: When building complex models, it is often difficult to explain why
     described in more detail in the article by Ribeiro et al. (2016) 
     <arXiv:1602.04938>.
 License: MIT + file LICENSE
-URL: https://lime.data-imaginist.com
+URL: https://lime.data-imaginist.com, https://github.com/thomasp85/lime
 BugReports: https://github.com/thomasp85/lime/issues
 Encoding: UTF-8
 LazyData: true
