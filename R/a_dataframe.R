@@ -138,7 +138,11 @@ explain.data.frame <- function(x, explainer, labels = NULL, n_labels = NULL,
     }
     res <- model_permutations(as.matrix(perms), case_res[i, , drop = FALSE], sim, labels, n_labels, n_features, feature_select)
     
-    # KG: peform all feature selections
+    # KG: peform all feature selections on the first label
+    if (!is.null(n_labels)) {
+      labels <- names(case_res[i, , drop = FALSE])[order(as.data.frame(case_res[i, , drop = FALSE])[1,], decreasing = TRUE)[seq_len(n_labels)]]
+    }
+    label = labels[1]
     forward_selection = 
       select_f_fs(x = as.matrix(perms),
                   y = case_res[i, , drop = FALSE][[label]], 
