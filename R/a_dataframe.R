@@ -182,6 +182,7 @@ explain.data.frame <- function(x, explainer, labels = NULL, n_labels = NULL,
     }
     
     res
+    
   })
   res <- do.call(rbind, res)
   if (all_fs == TRUE){
