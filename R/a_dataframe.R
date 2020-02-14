@@ -137,33 +137,6 @@ explain.data.frame <- function(x, explainer, labels = NULL, n_labels = NULL,
                         method = dist_fun)[seq_len(n_permutations-1)]))
     }
     res <- model_permutations(as.matrix(perms), case_res[i, , drop = FALSE], sim, labels, n_labels, n_features, feature_select)
-    
-    # KG: peform all feature selections on the first label
-    if (!is.null(n_labels)) {
-      labels <- names(case_res[i, , drop = FALSE])[order(as.data.frame(case_res[i, , drop = FALSE])[1,], decreasing = TRUE)[seq_len(n_labels)]]
-    }
-    label = labels[1]
-    forward_selection = 
-      select_f_fs(x = as.matrix(perms),
-                  y = case_res[i, , drop = FALSE][[label]], 
-                  weights = sim, 
-                  n_features = n_features)
-    highest_weights = 
-      select_f_hw(x = as.matrix(perms),
-                  y = case_res[i, , drop = FALSE][[label]], 
-                  weights = sim, 
-                  n_features = n_features)
-    lasso_path = 
-      select_f_lp(x = as.matrix(perms),
-                  y = case_res[i, , drop = FALSE][[label]], 
-                  weights = sim, 
-                  n_features = n_features)
-    tree = 
-      select_tree(x = as.matrix(perms),
-                  y = case_res[i, , drop = FALSE][[label]],
-                  weights = sim, 
-                  n_features = n_features)
-    
     res$feature_value <- unlist(case_perm[i[1], res$feature])
     res$feature_desc <- describe_feature(res$feature, case_perm[i[1], ], explainer$feature_type, explainer$bin_continuous, explainer$bin_cuts)
     guess <- which.max(abs(case_res[i[1], ]))

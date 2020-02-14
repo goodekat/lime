@@ -151,7 +151,7 @@ select_tree <- function(x, y, weights, n_features) {
   xgb_version <- packageVersion("xgboost")
   if (xgb_version < "0.6.4.6") stop("You need to install latest xgboost (version >= \"0.6.4.6\") from Xgboost Drat repository to use tree mode for feature selection.\nMore info on http://xgboost.readthedocs.io/en/latest/R-package/xgboostPresentation.html")
   number_trees <- max(trunc(log2(n_features)), 2)
-  if (log2(n_features) != number_trees) #message("In \"tree\" mode, number of features should be a power of 2 and at least of 4 (= deepness of the binary tree of 2), setting was set to [", n_features, "], it has been replaced by [", 2^number_trees, "].")
+  if (log2(n_features) != number_trees) message("In \"tree\" mode, number of features should be a power of 2 and at least of 4 (= deepness of the binary tree of 2), setting was set to [", n_features, "], it has been replaced by [", 2^number_trees, "].")
   mat <- xgboost::xgb.DMatrix(x, label = y, weight = weights)
   bst.bow <- xgboost::xgb.train(params = list(max_depth = number_trees, eta = 1, silent = 1, objective = "binary:logistic"), data = mat, nrounds = 1, lambda = 0)
   dt <- xgboost::xgb.model.dt.tree(model = bst.bow)
