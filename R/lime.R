@@ -51,6 +51,7 @@ model_permutations <- function(x, y, weights, labels, n_labels, n_features, feat
       intercept <- coefs[1]
       coefs <- coefs[-1]
       model_pred <- fit$fitted.values[1]
+      perms_pred_simple <- fit$fitted.values
     } else {
       shuffle_order <- sample(length(y[[label]])) # glm is sensitive to the order of the examples
       fit <- glmnet(x[shuffle_order, features], y[[label]][shuffle_order], weights = weights[shuffle_order], alpha = 0, lambda = 2 / length(y[[label]]))
@@ -59,9 +60,12 @@ model_permutations <- function(x, y, weights, labels, n_labels, n_features, feat
       intercept <- coefs[1, 1]
       coefs <- coefs[-1, 1]
       model_pred <- predict(fit, x[1, features, drop = FALSE])[1]
+      # Added by KG to return all explainer model predictions on 
+      # the perturbations
+      model_pred_all <- predict(fit, x[, features, drop = FALSE])
     }
 
-    data.frame(
+    out = data.frame(
       label = label,
       feature = names(coefs),
       feature_weight = unname(coefs),
@@ -70,8 +74,15 @@ model_permutations <- function(x, y, weights, labels, n_labels, n_features, feat
       model_prediction = model_pred,
       stringsAsFactors = FALSE
     )
+    # Added by KG to return all explainer model predictions on 
+    # the perturbations
+    out$perms_pred_simple = list(data.frame(model_pred_all))
+    out
+    
   })
+  
   do.call(rbind, res)
+  
 }
 
 

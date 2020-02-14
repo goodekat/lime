@@ -150,7 +150,7 @@ explain.data.frame <- function(x, explainer, labels = NULL, n_labels = NULL,
     res$model_type <- m_type
     res$perms_raw <- list(case_perm[i, ])
     res$perms_numerified <- list(perms)
-    res$perm_pred <- list(case_res[i, ])
+    res$perms_pred_complex <- list(case_res[i, ])
     res$weights <- list(sim)
     
     # KG: peform all feature selections (if requested)
@@ -187,11 +187,20 @@ explain.data.frame <- function(x, explainer, labels = NULL, n_labels = NULL,
   })
   res <- do.call(rbind, res)
   if (all_fs == TRUE){
-    res <- res[, c('model_type', 'case', 'label', 'label_prob', 'model_r2', 'model_intercept', 'model_prediction', 'feature', 'feature_value', 'feature_weight', 'feature_desc', 'data', 'prediction',
-                   'perms_raw', 'perms_numerified', 'perm_pred', 'weights', 'fs', 'hw', 'lp', 'tree')]
+    res <- res[, c('model_type', 'case', 'label', 'label_prob', 
+                   'model_r2', 'model_intercept', 'model_prediction', 
+                   'feature', 'feature_value', 'feature_weight', 
+                   'feature_desc', 'data', 'prediction', 'perms_raw', 
+                   'perms_numerified', 'perms_pred_complex', 
+                   'perms_pred_simple', 'weights', 
+                   'fs', 'hw', 'lp', 'tree')]
   } else {
-    res <- res[, c('model_type', 'case', 'label', 'label_prob', 'model_r2', 'model_intercept', 'model_prediction', 'feature', 'feature_value', 'feature_weight', 'feature_desc', 'data', 'prediction',
-                   'perms_raw', 'perms_numerified', 'perm_pred', 'weights')]
+    res <- res[, c('model_type', 'case', 'label', 'label_prob', 
+                   'model_r2', 'model_intercept', 'model_prediction', 
+                   'feature', 'feature_value', 'feature_weight', 
+                   'feature_desc', 'data', 'prediction', 'perms_raw', 
+                   'perms_numerified', 'perms_pred_complex', 
+                   'perms_pred_simple', 'weights')]
   }
   if (m_type == 'regression') {
     res$label <- NULL
