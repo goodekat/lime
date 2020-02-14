@@ -11,7 +11,7 @@
 \method{explain}{data.frame}(x, explainer, labels = NULL,
   n_labels = NULL, n_features, n_permutations = 5000,
   feature_select = "auto", dist_fun = "gower", kernel_width = NULL,
-  gower_pow = 1, all_fs = FALSE, label_fs, ...)
+  gower_pow = 1, all_fs = FALSE, label_fs = NULL, ...)
 
 \method{explain}{character}(x, explainer, labels = NULL,
   n_labels = NULL, n_features, n_permutations = 5000,

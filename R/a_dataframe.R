@@ -103,7 +103,7 @@ explain.data.frame <- function(x, explainer, labels = NULL, n_labels = NULL,
                                n_features, n_permutations = 5000,
                                feature_select = 'auto', dist_fun = 'gower',
                                kernel_width = NULL, gower_pow = 1, 
-                               all_fs = FALSE, label_fs, ...) {
+                               all_fs = FALSE, label_fs = NULL, ...) {
   assert_that(is.data_frame_explainer(explainer))
   m_type <- model_type(explainer)
   o_type <- output_type(explainer)
@@ -155,6 +155,7 @@ explain.data.frame <- function(x, explainer, labels = NULL, n_labels = NULL,
     
     # KG: peform all feature selections (if requested)
     if (all_fs == TRUE) {
+      if (is.null(label_fs)) stop("label_fs must be specified if all_fs = TRUE.")
       forward_selection =
         select_f_fs(x = as.matrix(perms),
                     y = case_res[i, , drop = FALSE][[label_fs]],
