@@ -186,8 +186,13 @@ explain.data.frame <- function(x, explainer, labels = NULL, n_labels = NULL,
     res
   })
   res <- do.call(rbind, res)
-  res <- res[, c('model_type', 'case', 'label', 'label_prob', 'model_r2', 'model_intercept', 'model_prediction', 'feature', 'feature_value', 'feature_weight', 'feature_desc', 'data', 'prediction', 
-                 'perms_raw', 'perms_numerified', 'perm_pred', 'weights', 'fs', 'hw', 'lp', 'tree')]
+  if (all_fs == TRUE){
+    res <- res[, c('model_type', 'case', 'label', 'label_prob', 'model_r2', 'model_intercept', 'model_prediction', 'feature', 'feature_value', 'feature_weight', 'feature_desc', 'data', 'prediction', 
+                   'perms_raw', 'perms_numerified', 'perm_pred', 'weights', 'fs', 'hw', 'lp', 'tree')]
+  } else {
+    res <- res[, c('model_type', 'case', 'label', 'label_prob', 'model_r2', 'model_intercept', 'model_prediction', 'feature', 'feature_value', 'feature_weight', 'feature_desc', 'data', 'prediction', 
+                   'perms_raw', 'perms_numerified', 'perm_pred', 'weights')]
+  }
   if (m_type == 'regression') {
     res$label <- NULL
     res$label_prob <- NULL
