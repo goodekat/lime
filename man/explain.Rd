@@ -11,7 +11,7 @@
 \method{explain}{data.frame}(x, explainer, labels = NULL,
   n_labels = NULL, n_features, n_permutations = 5000,
   feature_select = "auto", dist_fun = "gower", kernel_width = NULL,
-  gower_pow = 1, ...)
+  gower_pow = 1, all_fs = FALSE, ...)
 
 \method{explain}{character}(x, explainer, labels = NULL,
   n_labels = NULL, n_features, n_permutations = 5000,
@@ -66,6 +66,8 @@ convert the distance to a similarity in case \code{dist_fun != 'gower'}.}
 
 \item{gower_pow}{A modifier for gower distance. The calculated distance will
 be raised to the power of this value.}
+
+\item{all_fs}{Added by KG to allow for all feature selection methods to be performed if set to TRUE.}
 
 \item{...}{Parameters passed on to the \code{predict_model()} method}
 

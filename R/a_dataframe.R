@@ -93,6 +93,7 @@ lime.data.frame <- function(x, model, preprocess = NULL, bin_continuous = TRUE, 
 #' convert the distance to a similarity in case `dist_fun != 'gower'`.
 #' @param gower_pow A modifier for gower distance. The calculated distance will
 #' be raised to the power of this value.
+#' @param all_fs Added by KG to allow for all feature selection methods to be performed if set to TRUE.
 #'
 #' @importFrom gower gower_dist
 #' @importFrom stats dist
@@ -100,7 +101,8 @@ lime.data.frame <- function(x, model, preprocess = NULL, bin_continuous = TRUE, 
 explain.data.frame <- function(x, explainer, labels = NULL, n_labels = NULL,
                                n_features, n_permutations = 5000,
                                feature_select = 'auto', dist_fun = 'gower',
-                               kernel_width = NULL, gower_pow = 1, ...) {
+                               kernel_width = NULL, gower_pow = 1, 
+                               all_fs = FALSE,...) {
   assert_that(is.data_frame_explainer(explainer))
   m_type <- model_type(explainer)
   o_type <- output_type(explainer)
@@ -136,7 +138,33 @@ explain.data.frame <- function(x, explainer, labels = NULL, n_labels = NULL,
       sim <- kernel(c(0, dist(feature_scale(perms, explainer$feature_distribution, explainer$feature_type, explainer$bin_continuous),
                         method = dist_fun)[seq_len(n_permutations-1)]))
     }
-    res <- model_permutations(as.matrix(perms), case_res[i, , drop = FALSE], sim, labels, n_labels, n_features, feature_select)
+    res <- model_permutations(as.matrix(perms), case_res[i, , drop = FALSE], sim, labels, n_labels, n_features, feature_select, all_fs)
+    
+    # KG: peform all feature selections (if requested)
+    if (all_fs == TRUE){
+      forward_selection = 
+        select_f_fs(x = as.matrix(perms),
+                    y = case_res[i, , drop = FALSE][[label]], 
+                    weights = sim, 
+                    n_features = n_features)
+      highest_weights = 
+        select_f_hw(x = as.matrix(perms),
+                    y = case_res[i, , drop = FALSE][[label]], 
+                    weights = sim, 
+                    n_features = n_features)
+      lasso_path = 
+        select_f_lp(x = as.matrix(perms),
+                    y = case_res[i, , drop = FALSE][[label]], 
+                    weights = sim, 
+                    n_features = n_features)
+      tree = 
+        select_tree(x = as.matrix(perms),
+                    y = case_res[i, , drop = FALSE][[label]],
+                    weights = sim, 
+                    n_features = n_features, 
+                    all_fs = all_fs)
+    }
+    
     res$feature_value <- unlist(case_perm[i[1], res$feature])
     res$feature_desc <- describe_feature(res$feature, case_perm[i[1], ], explainer$feature_type, explainer$bin_continuous, explainer$bin_cuts)
     guess <- which.max(abs(case_res[i[1], ]))
@@ -149,10 +177,12 @@ explain.data.frame <- function(x, explainer, labels = NULL, n_labels = NULL,
     res$perms_numerified <- list(perms)
     res$perm_pred <- list(case_res[i, ])
     res$weights <- list(sim)
-    res$fs <- list(names(perms)[forward_selection])
-    res$hw <- list(names(perms)[highest_weights])
-    res$lp <- list(names(perms)[lasso_path])
-    res$tree <- list(names(perms)[tree])
+    if (all_fs == TRUE){
+      res$fs <- list(names(perms)[forward_selection])
+      res$hw <- list(names(perms)[highest_weights])
+      res$lp <- list(names(perms)[lasso_path])
+      res$tree <- list(names(perms)[tree])
+    }
     res
   })
   res <- do.call(rbind, res)

@@ -27,7 +27,7 @@ lime <- function(x, model, ...) {
 #' @importFrom glmnet cv.glmnet
 #' @importFrom stats coef glm.fit gaussian var
 #' @importFrom Matrix colSums
-model_permutations <- function(x, y, weights, labels, n_labels, n_features, feature_method) {
+model_permutations <- function(x, y, weights, labels, n_labels, n_features, feature_method, all_fs) {
   if (all(weights[-1] == 0)) {
     stop('All permutations have no similarity to the original observation. Try setting bin_continuous to TRUE and/or increase kernel_size', call. = FALSE)
   }
@@ -41,7 +41,7 @@ model_permutations <- function(x, y, weights, labels, n_labels, n_features, feat
       stop("Response is constant across permutations. Please check your model", call. = FALSE)
     }
 
-    features <- select_features(feature_method, x, y[[label]], weights, n_features)
+    features <- select_features(feature_method, x, y[[label]], weights, n_features, all_fs)
     # glmnet does not allow n_features=1
     if (length(features) == 1) {
       x_fit = cbind("(Intercept)" = rep(1, nrow(x)), x[, features, drop = FALSE])
@@ -78,7 +78,7 @@ model_permutations <- function(x, y, weights, labels, n_labels, n_features, feat
 feature_selection_method <- function() c("auto", "none", "forward_selection", "highest_weights", "lasso_path", "tree")
 
 
-select_features <- function(method, x, y, weights, n_features) {
+select_features <- function(method, x, y, weights, n_features, all_fs) {
   if (n_features >= ncol(x)) {
     return(seq_len(ncol(x)))
   }
@@ -94,7 +94,7 @@ select_features <- function(method, x, y, weights, n_features) {
     forward_selection = select_f_fs(x, y, weights, n_features),
     highest_weights = select_f_hw(x, y, weights, n_features),
     lasso_path = select_f_lp(x, y, weights, n_features),
-    tree = select_tree(x, y, weights, n_features),
+    tree = select_tree(x, y, weights, n_features, all_fs),
     stop("Method not implemented", call. = FALSE)
   )
 }
@@ -147,7 +147,7 @@ select_f_hw <- function(x, y, weights, n_features) {
 # @param weights distance of the sample with the original datum
 # @param n_features number of features to take
 #' @importFrom utils packageVersion
-select_tree <- function(x, y, weights, n_features) {
+select_tree <- function(x, y, weights, n_features, all_fs) {
   xgb_version <- packageVersion("xgboost")
   if (xgb_version < "0.6.4.6") stop("You need to install latest xgboost (version >= \"0.6.4.6\") from Xgboost Drat repository to use tree mode for feature selection.\nMore info on http://xgboost.readthedocs.io/en/latest/R-package/xgboostPresentation.html")
   number_trees <- max(trunc(log2(n_features)), 2)
