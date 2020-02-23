@@ -223,7 +223,7 @@ predict_model.ranger <- function(x, newdata, type, ...) {
 }
 
 #' @export
-predict_model.randomForest <- function(x, newdata, type, ...) {
+predict_model.randomForest.formula <- function(x, newdata, type, ...) {
   
   # Compute the predictions
   if (type == "raw"){
