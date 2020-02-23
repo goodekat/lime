@@ -223,7 +223,7 @@ predict_model.ranger <- function(x, newdata, type, ...) {
 }
 
 #' @export
-predict_model.randomForest.formula <- function(x, newdata, type, ...) {
+predict_model.randomForest <- function(x, newdata, type, ...) {
   
   # Compute the predictions
   if (type == "raw"){
@@ -320,5 +320,15 @@ model_type.ranger <- function(x, ...) {
     return('regression')
   } else {
     stop(paste0('ranger model class "',ranger_model_class,'" is not currently supported.'))
+  }
+}
+#' @export
+model_type.randomForest <- function(x, ...) {
+  if (x$type == "regression") {
+    return('regression')
+  } else if (x$type == "classification") {
+    return('classification')
+  } else {
+    stop('This randomForest model is not currently supported.')
   }
 }

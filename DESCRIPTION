@@ -55,6 +55,7 @@ Suggests: xgboost,
     sessioninfo,
     magick,
     keras,
-    ranger
+    ranger,
+    randomForest
 LinkingTo: Rcpp, 
     RcppEigen
