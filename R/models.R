@@ -227,9 +227,9 @@ predict_model.randomForest <- function(x, newdata, type, ...) {
   
   # Compute the predictions
   if (type == "raw"){
-    res <- predict(x, newdata = newdata, type = "response", ...)
+    res <- randomForest:::predict.randomForest(x, newdata = newdata, type = "response", ...)
   } else {
-    res <- predict(x, newdata = newdata, type, ...)
+    res <- randomForest:::predict.randomForest(x, newdata = newdata, type, ...)
   }
   
   # Return the appropriate set of predictions
