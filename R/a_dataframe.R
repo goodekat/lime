@@ -95,6 +95,8 @@ lime.data.frame <- function(x, model, preprocess = NULL, bin_continuous = TRUE, 
 #' be raised to the power of this value.
 #' @param all_fs Added by KG to allow for all feature selection methods to be performed if set to TRUE.
 #' @param label_fs The response label to use when applying all feature selection methods. (Only accepts one for now.)
+#' @param perm_seed A numerical object that will be used to set a seed when
+#'        sampling the pertubations. No seed is set if this is not specified.
 #'
 #' @importFrom gower gower_dist
 #' @importFrom stats dist
@@ -103,7 +105,7 @@ explain.data.frame <- function(x, explainer, labels = NULL, n_labels = NULL,
                                n_features, n_permutations = 5000,
                                feature_select = 'auto', dist_fun = 'gower',
                                kernel_width = NULL, gower_pow = 1, 
-                               all_fs = FALSE, label_fs = NULL, ...) {
+                               all_fs = FALSE, label_fs = NULL, perm_seed = NULL, ...) {
   assert_that(is.data_frame_explainer(explainer))
   m_type <- model_type(explainer)
   o_type <- output_type(explainer)
@@ -123,12 +125,14 @@ explain.data.frame <- function(x, explainer, labels = NULL, n_labels = NULL,
   }
   kernel <- exp_kernel(kernel_width)
 
+  if (!is.null(perm_seed)) set.seed(perm_seed)
   case_perm <- permute_cases(x, n_permutations, explainer$feature_distribution,
                              explainer$bin_continuous, explainer$bin_cuts,
                              explainer$use_density)
   case_res <- predict_model(explainer$model, explainer$preprocess(case_perm), type = o_type, ...)
   case_res <- set_labels(case_res, explainer$model)
   case_ind <- split(seq_len(nrow(case_perm)), rep(seq_len(nrow(x)), each = n_permutations))
+
   res <- lapply(seq_along(case_ind), function(ind) {
     i <- case_ind[[ind]]
     if (dist_fun == 'gower') {
@@ -137,7 +141,7 @@ explain.data.frame <- function(x, explainer, labels = NULL, n_labels = NULL,
     perms <- numerify(case_perm[i, ], explainer$feature_type, explainer$bin_continuous, explainer$bin_cuts)
     if (dist_fun != 'gower') {
       sim <- kernel(c(0, dist(feature_scale(perms, explainer$feature_distribution, explainer$feature_type, explainer$bin_continuous),
-                        method = dist_fun)[seq_len(n_permutations-1)]))
+                              method = dist_fun)[seq_len(n_permutations-1)]))
     }
     res <- model_permutations(as.matrix(perms), case_res[i, , drop = FALSE], sim, labels, n_labels, n_features, feature_select)
     res$feature_value <- unlist(case_perm[i[1], res$feature])
@@ -148,6 +152,8 @@ explain.data.frame <- function(x, explainer, labels = NULL, n_labels = NULL,
     res$data <- list(as.list(case_perm[i[1], ]))
     res$prediction <- list(as.list(case_res[i[1], ]))
     res$model_type <- m_type
+    
+    # KG: return additional information relating to the simulated data
     res$perms_raw <- list(case_perm[i, ])
     res$perms_numerified <- list(perms)
     res$perms_pred_complex <- list(case_res[i, ])
@@ -181,10 +187,9 @@ explain.data.frame <- function(x, explainer, labels = NULL, n_labels = NULL,
       res$lp <- list(names(perms)[lasso_path])
       res$tree <- list(names(perms)[tree])
     }
-    
     res
-    
   })
+  
   res <- do.call(rbind, res)
   if (all_fs == TRUE){
     res <- res[, c('model_type', 'case', 'label', 'label_prob', 
@@ -209,6 +214,8 @@ explain.data.frame <- function(x, explainer, labels = NULL, n_labels = NULL,
   }
   as_tibble(res)
 }
+  
+
 is.data_frame_explainer <- function(x) inherits(x, 'data_frame_explainer')
 #' @importFrom stats setNames
 numerify <- function(x, type, bin_continuous, bin_cuts) {
